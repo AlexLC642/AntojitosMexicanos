@@ -1,0 +1,118 @@
+
+'use client';
+
+import React, { useEffect } from 'react';
+import { Sidebar } from '@/components/Sidebar';
+import { useSimulationStore } from '@/store/useSimulationStore';
+import { RefreshCcw, TrendingUp } from 'lucide-react';
+
+export default function ComparisonPage() {
+  const { scenarios, compareScenarios } = useSimulationStore();
+
+  useEffect(() => {
+    compareScenarios();
+  }, [compareScenarios]);
+
+  return (
+    <div className="flex min-h-screen bg-zinc-950 text-zinc-50 font-sans">
+      <Sidebar />
+      
+      <main className="flex-1 ml-64 p-8 lg:p-12 overflow-y-auto h-screen custom-scrollbar">
+        <header className="mb-10 flex justify-between items-end">
+          <div>
+            <h1 className="text-4xl font-black tracking-tight text-white mb-2 uppercase">Comparativa de Escenarios</h1>
+            <p className="text-zinc-500 font-medium">Análisis semanal y optimización operativa</p>
+          </div>
+          <button 
+            onClick={compareScenarios}
+            className="bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-zinc-800 transition-all text-white font-bold"
+          >
+            <RefreshCcw className="h-4 w-4" />
+            Actualizar Datos
+          </button>
+        </header>
+
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-zinc-800 bg-zinc-900/50">
+                  <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest">Escenario</th>
+                  <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest text-center">λ (Lleg)</th>
+                  <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest text-center">μ (Serv)</th>
+                  <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest text-center">s (Pers)</th>
+                  <th className="px-6 py-5 text-zinc-200 text-[10px] font-black uppercase tracking-widest text-center bg-zinc-800/50">Wq (Cola)</th>
+                  <th className="px-6 py-5 text-zinc-200 text-[10px] font-black uppercase tracking-widest text-center bg-zinc-800/50">W (Sist)</th>
+                  <th className="px-6 py-5 text-zinc-200 text-[10px] font-black uppercase tracking-widest text-center bg-zinc-800/50">Lq (Cola)</th>
+                  <th className="px-6 py-5 text-zinc-200 text-[10px] font-black uppercase tracking-widest text-center bg-zinc-800/50">Utilización</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800">
+                {scenarios.map((scenario) => (
+                  <tr key={scenario.id} className="hover:bg-zinc-800/40 transition-colors group">
+                    <td className="px-6 py-5 font-bold text-white text-sm">
+                      {scenario.name}
+                    </td>
+                    <td className="px-6 py-5 text-zinc-500 text-sm text-center font-mono">{scenario.params.lambda}</td>
+                    <td className="px-6 py-5 text-zinc-500 text-sm text-center font-mono">{scenario.params.mu}</td>
+                    <td className="px-6 py-5 text-zinc-500 text-sm text-center font-mono font-bold text-zinc-300">{scenario.params.s}</td>
+                    
+                    <td className="px-6 py-5 text-center bg-zinc-800/20">
+                      <span className={`text-sm font-bold font-mono ${scenario.result && scenario.result.wq > 10 ? 'text-red-500' : 'text-green-500'}`}>
+                        {scenario.result ? `${scenario.result.wq.toFixed(2)}m` : '---'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 text-center bg-zinc-800/20">
+                       <span className="text-zinc-300 text-sm font-mono">
+                          {scenario.result ? `${scenario.result.w.toFixed(2)}m` : '---'}
+                       </span>
+                    </td>
+                    <td className="px-6 py-5 text-center bg-zinc-800/20">
+                       <span className="text-zinc-300 text-sm font-mono">
+                          {scenario.result ? scenario.result.lq.toFixed(2) : '---'}
+                       </span>
+                    </td>
+                    <td className="px-6 py-5 text-center bg-zinc-800/20">
+                       <div className="flex items-center justify-center gap-2">
+                          <div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                             <div 
+                                className={`h-full transition-all duration-500 ${scenario.result && scenario.result.utilization > 0.9 ? 'bg-red-500' : 'bg-green-500'}`}
+                                style={{ width: `${(scenario.result?.utilization || 0) * 100}%` }}
+                             />
+                          </div>
+                          <span className="text-xs font-bold font-mono text-zinc-400">
+                             {scenario.result ? `${(scenario.result.utilization * 100).toFixed(0)}%` : '---'}
+                          </span>
+                       </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl">
+              <h4 className="text-white font-bold mb-4 flex items-center gap-2">
+                 <TrendingUp className="text-red-500 h-5 w-5" />
+                 Insights de Capacidad
+              </h4>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                 El escenario de **Viernes y Sábado** muestra los picos más altos de saturación. Se recomienda 
+                 asignar al menos **4 personas** durante estos horarios para mantener el tiempo de espera (Wq) 
+                 por debajo de los 5 minutos.
+              </p>
+           </div>
+           <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl">
+              <h4 className="text-white font-bold mb-4">Recomendación de Optimización</h4>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                 Para los horarios de **Lunes y Martes**, el sistema está subutilizado. Podría operarse con 
+                 **1 persona** de atención si se optimizan los procesos de toma de pedido, reduciendo costos operativos.
+              </p>
+           </div>
+        </div>
+      </main>
+    </div>
+  );
+}
