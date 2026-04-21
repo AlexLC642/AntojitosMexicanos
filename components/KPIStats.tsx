@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Clock, Users, Activity, Percent, Coffee } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface KpiCardProps {
   title: string;
@@ -11,17 +12,29 @@ interface KpiCardProps {
 }
 
 function KpiCard({ title, value, unit, icon: Icon, color }: KpiCardProps) {
+  const isInfinity = value === "Infinity" || value === "Infinity.00";
+  const displayValue = isInfinity ? "Saturado" : value;
+
   return (
-    <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl flex flex-col gap-4">
-      <div className="flex justify-between items-center">
-        <span className="text-zinc-500 text-sm font-medium uppercase tracking-wider">{title}</span>
-        <div className={`p-2 rounded-lg ${color} bg-opacity-10 text-white`}>
+    <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl flex flex-col justify-between min-h-[140px] transition-all hover:border-zinc-700">
+      <div className="flex justify-between items-start gap-2">
+        <span className="text-zinc-500 text-[10px] font-black uppercase tracking-widest leading-tight">{title}</span>
+        <div className={`p-2 rounded-lg ${color} bg-opacity-10 text-white shrink-0`}>
           <Icon className="h-4 w-4" />
         </div>
       </div>
-      <div>
-        <span className="text-3xl font-bold text-white">{value}</span>
-        <span className="text-zinc-500 text-sm ml-2 font-medium">{unit}</span>
+      <div className="mt-2">
+        <div className="flex items-baseline gap-1 flex-wrap">
+          <span className={cn(
+            "font-black tracking-tighter text-white transition-all",
+            isInfinity ? "text-xl text-red-500" : "text-2xl lg:text-3xl"
+          )}>
+            {displayValue}
+          </span>
+          {unit && !isInfinity && (
+            <span className="text-zinc-500 text-[10px] font-bold uppercase">{unit}</span>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -33,7 +46,7 @@ export function KPIStats({
   wq: number; w: number; lq: number; utilization: number; totalProducts: number; totalRevenue: number 
 }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
       <KpiCard 
         title="Espera en Cola (Wq)" 
         value={wq.toFixed(2)} 
