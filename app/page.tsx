@@ -7,16 +7,19 @@ import { KPIStats } from '@/components/KPIStats';
 import { SimulationForm } from '@/components/SimulationForm';
 import { ResultsTable } from '@/components/ResultsTable';
 import { useSimulationStore } from '@/store/useSimulationStore';
-import { Info, AlertCircle, RotateCcw } from 'lucide-react';
+import { Info, AlertCircle, RotateCcw, Play } from 'lucide-react';
 
 export default function Dashboard() {
-  const { result, runSimulation, params, resetResults } = useSimulationStore();
+  const { result, runSimulation, params, resetResults, isSimulating } = useSimulationStore();
 
   // Run initial simulation
   useEffect(() => {
-    useSimulationStore.getState().fetchProducts();
-    useSimulationStore.getState().fetchScenarios();
-    runSimulation();
+    const init = async () => {
+      await useSimulationStore.getState().fetchProducts();
+      await useSimulationStore.getState().fetchScenarios();
+      runSimulation();
+    };
+    init();
   }, [runSimulation]);
 
   return (
@@ -48,7 +51,14 @@ export default function Dashboard() {
 
         <div className="flex gap-8 items-start">
           <div className="flex-1 min-w-0">
-            {result ? (
+            {isSimulating ? (
+              <div className="flex items-center justify-center h-64 bg-zinc-900 rounded-3xl border border-dashed border-zinc-800">
+                 <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
+                    <p className="text-zinc-500 font-medium">Ejecutando simulación...</p>
+                 </div>
+              </div>
+            ) : result ? (
               <>
                 <KPIStats 
                   wq={result.wq} 
@@ -97,10 +107,15 @@ export default function Dashboard() {
                 <ResultsTable clients={result.clients} />
               </>
             ) : (
-              <div className="flex items-center justify-center h-64 bg-zinc-900 rounded-3xl border border-dashed border-zinc-800">
+              <div className="flex items-center justify-center h-64 bg-zinc-900/50 rounded-3xl border border-dashed border-zinc-800 group hover:border-zinc-700 transition-colors">
                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
-                    <p className="text-zinc-500 font-medium">Cargando resultados de simulación...</p>
+                    <div className="bg-zinc-800 p-4 rounded-2xl w-fit mx-auto mb-4 group-hover:scale-110 transition-transform">
+                       <Play className="h-6 w-6 text-zinc-500 fill-current" />
+                    </div>
+                    <p className="text-white font-bold mb-1">Tablero Limpio</p>
+                    <p className="text-zinc-500 text-sm max-w-xs mx-auto">
+                       Configura los parámetros a la derecha y haz clic en "Iniciar Simulación" para ver los resultados.
+                    </p>
                  </div>
               </div>
             )}

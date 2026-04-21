@@ -7,11 +7,28 @@ import { useSimulationStore } from '@/store/useSimulationStore';
 import { RefreshCcw, TrendingUp } from 'lucide-react';
 
 export default function ComparisonPage() {
-  const { scenarios, compareScenarios } = useSimulationStore();
+  const [mounted, setMounted] = React.useState(false);
+  const scenarios = useSimulationStore(state => state.scenarios);
+  const compareScenarios = useSimulationStore(state => state.compareScenarios);
 
   useEffect(() => {
+    setMounted(true);
     compareScenarios();
   }, [compareScenarios]);
+
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen bg-zinc-950 text-zinc-50 font-sans">
+        <Sidebar />
+        <main className="flex-1 ml-64 p-8 lg:p-12">
+          <div className="animate-pulse flex flex-col gap-4">
+             <div className="h-10 w-64 bg-zinc-900 rounded-xl" />
+             <div className="h-4 w-48 bg-zinc-900 rounded-lg" />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-zinc-950 text-zinc-50 font-sans">
@@ -53,9 +70,9 @@ export default function ComparisonPage() {
                     <td className="px-6 py-5 font-bold text-white text-sm">
                       {scenario.name}
                     </td>
-                    <td className="px-6 py-5 text-zinc-500 text-sm text-center font-mono">{scenario.params.lambda}</td>
-                    <td className="px-6 py-5 text-zinc-500 text-sm text-center font-mono">{scenario.params.mu}</td>
-                    <td className="px-6 py-5 text-zinc-500 text-sm text-center font-mono font-bold text-zinc-300">{scenario.params.s}</td>
+                    <td className="px-6 py-5 text-zinc-500 text-sm text-center font-mono">{scenario.params?.lambda || 0}</td>
+                    <td className="px-6 py-5 text-zinc-500 text-sm text-center font-mono">{scenario.params?.mu || 0}</td>
+                    <td className="px-6 py-5 text-zinc-500 text-sm text-center font-mono font-bold text-zinc-300">{scenario.params?.s || 0}</td>
                     
                     <td className="px-6 py-5 text-center bg-zinc-800/20">
                       <span className={`text-sm font-bold font-mono ${scenario.result && scenario.result.wq > 10 ? 'text-red-500' : 'text-green-500'}`}>
@@ -77,7 +94,7 @@ export default function ComparisonPage() {
                           <div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                              <div 
                                 className={`h-full transition-all duration-500 ${scenario.result && scenario.result.utilization > 0.9 ? 'bg-red-500' : 'bg-green-500'}`}
-                                style={{ width: `${(scenario.result?.utilization || 0) * 100}%` }}
+                                style={{ width: `${Math.min(100, Math.max(0, (scenario.result?.utilization || 0) * 100))}%` }}
                              />
                           </div>
                           <span className="text-xs font-bold font-mono text-zinc-400">

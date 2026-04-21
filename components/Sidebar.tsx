@@ -1,4 +1,6 @@
 
+'use client';
+
 import React from 'react';
 import { LayoutDashboard, Users, BarChart3, HelpCircle, Settings, Coffee } from 'lucide-react';
 import { cn } from '@/lib/utils';

@@ -95,18 +95,22 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   resetResults: () => set({ result: null }),
 
   setScenario: (id) => {
+    if (!id) return;
     const scenario = get().scenarios.find(s => s.id === id);
-    if (scenario) {
-      set({ params: scenario.params });
-      get().runSimulation();
+    if (scenario && scenario.params) {
+      set({ params: { ...scenario.params } });
+      // Ensure we run simulation after state update
+      setTimeout(() => get().runSimulation(), 0);
     }
   },
 
   compareScenarios: () => {
-     const { products } = get();
-     const comparedScenarios = get().scenarios.map(s => ({
+     const { products, scenarios } = get();
+     if (!scenarios || scenarios.length === 0) return;
+     
+     const comparedScenarios = scenarios.map(s => ({
         ...s,
-        result: simulate({ ...s.params, products })
+        result: s.params ? simulate({ ...s.params, products }) : undefined
      }));
      set({ scenarios: comparedScenarios });
   },
@@ -135,8 +139,34 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
     try {
       const response = await fetch('/api/scenarios');
       if (response.ok) {
-        const scenarios = await response.json();
-        set({ scenarios });
+        const data = await response.json();
+        if (!Array.isArray(data)) return;
+
+        // Transform flat database structure to nested params structure
+        const dbScenarios = data.map((s: any) => ({
+          id: s.id,
+          name: s.name,
+          params: {
+            lambda: Number(s.lambda),
+            mu: Number(s.mu),
+            s: Number(s.s),
+            duration: Number(s.duration)
+          }
+        }));
+        
+        set((state) => {
+          // Merge: Database scenarios take priority, but keep hardcoded ones if not in DB
+          const merged = [...state.scenarios];
+          dbScenarios.forEach(dbS => {
+            const index = merged.findIndex(m => m.id === dbS.id || m.name === dbS.name);
+            if (index !== -1) {
+              merged[index] = dbS;
+            } else {
+              merged.push(dbS);
+            }
+          });
+          return { scenarios: merged };
+        });
       }
     } catch (error) {
       console.error('Failed to fetch scenarios:', error);

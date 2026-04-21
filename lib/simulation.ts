@@ -47,10 +47,14 @@ export interface SimulationResult {
  * M/M/s (Erlang-C) Mathematical Model
  */
 export function calculateMMS(params: SimulationParams) {
-  const { lambda, mu, s } = params;
+  // Validate and sanitize inputs
+  const lambda = Math.max(0.001, params.lambda || 0);
+  const mu = Math.max(0.001, params.mu || 0);
+  const s = Math.max(1, Math.floor(params.s || 1));
+  
   const rho = lambda / (s * mu);
 
-  if (rho >= 1) {
+  if (rho >= 0.999) { // Handle near-saturation or saturation
     return {
       wq: Infinity,
       w: Infinity,
@@ -63,9 +67,16 @@ export function calculateMMS(params: SimulationParams) {
   // Calculate P0 (Probability of zero customers in system)
   let sum = 0;
   for (let n = 0; n < s; n++) {
-    sum += Math.pow(lambda / mu, n) / factorial(n);
+    const term = Math.pow(lambda / mu, n) / factorial(n);
+    if (isNaN(term)) break;
+    sum += term;
   }
   const term2 = (Math.pow(lambda / mu, s) / (factorial(s) * (1 - rho)));
+  
+  if (isNaN(term2) || !isFinite(term2)) {
+     return { wq: Infinity, w: Infinity, lq: Infinity, l: Infinity, utilization: rho };
+  }
+
   const p0 = 1 / (sum + term2);
 
   const lq = (p0 * Math.pow(lambda / mu, s) * rho) / (factorial(s) * Math.pow(1 - rho, 2));
@@ -74,11 +85,11 @@ export function calculateMMS(params: SimulationParams) {
   const l = lambda * w;
 
   return {
-    wq: wq * 60, // Convert to minutes
-    w: w * 60,   // Convert to minutes
-    lq: lq,
-    l: l,
-    utilization: rho,
+    wq: isNaN(wq) ? 0 : wq * 60, // Convert to minutes
+    w: isNaN(w) ? 0 : w * 60,   // Convert to minutes
+    lq: isNaN(lq) ? 0 : lq,
+    l: isNaN(l) ? 0 : l,
+    utilization: isNaN(rho) ? 0 : rho,
   };
 }
 
@@ -93,7 +104,11 @@ function factorial(n: number): number {
  * Discrete Event Simulation (DES) for FIFO Table
  */
 export function runDES(params: SimulationParams): ClientEvent[] {
-  const { lambda, mu, duration, s } = params;
+  const lambda = Math.max(0.1, params.lambda || 0);
+  const mu = Math.max(0.1, params.mu || 0);
+  const duration = Math.max(1, params.duration || 60);
+  const s = Math.max(1, Math.floor(params.s || 1));
+
   const clients: ClientEvent[] = [];
   let currentTime = 0;
   let clientId = 1;
@@ -101,19 +116,19 @@ export function runDES(params: SimulationParams): ClientEvent[] {
   // Track the time each server becomes free
   const serversFreeAt = new Array(s).fill(0);
 
-  // Simple Poisson arrival: Inter-arrival time ~ exponential(lambda/60)
-  // Simple service time: Service duration ~ exponential(mu/60)
+  // Limit total clients to prevent browser freeze in case of extreme parameters
+  const MAX_CLIENTS = 10000;
   
-  while (currentTime < duration) {
+  while (currentTime < duration && clients.length < MAX_CLIENTS) {
     // Generate next arrival
     // Inter-arrival time = -ln(U) / (lambda/60)
-    const interArrival = -Math.log(Math.random()) / (lambda / 60);
+    const interArrival = -Math.log(Math.max(0.0001, Math.random())) / (lambda / 60);
     currentTime += interArrival;
     
     if (currentTime > duration) break;
 
     // Service duration = -ln(U) / (mu/60)
-    const serviceDuration = -Math.log(Math.random()) / (mu / 60);
+    const serviceDuration = -Math.log(Math.max(0.0001, Math.random())) / (mu / 60);
 
     // Generate product count (1 to 4)
     const productCount = Math.floor(Math.random() * 4) + 1;
@@ -126,13 +141,12 @@ export function runDES(params: SimulationParams): ClientEvent[] {
         totalSale += params.products[randomIndex].price;
       }
     } else {
-      // Fallback base price if no products defined
       totalSale = productCount * 20; 
     }
 
     // Find the first available server
-    let serverIndex = -1;
-    let minFreeTime = Infinity;
+    let serverIndex = 0;
+    let minFreeTime = serversFreeAt[0];
     
     for (let i = 0; i < s; i++) {
         if (serversFreeAt[i] <= currentTime) {
@@ -145,8 +159,6 @@ export function runDES(params: SimulationParams): ClientEvent[] {
         }
     }
 
-    // If server is free before/at arrival, start now. 
-    // Otherwise, start when server is free.
     const startTime = Math.max(currentTime, serversFreeAt[serverIndex]);
     const endTime = startTime + serviceDuration;
     const waitTime = startTime - currentTime;
