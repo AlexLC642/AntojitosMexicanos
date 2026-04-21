@@ -56,10 +56,16 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-auto pt-6 border-t border-zinc-800">
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-500 hover:text-white transition-all">
-          <Settings className="h-5 w-5" />
-          <span className="font-medium text-sm">Configuración</span>
-        </button>
+        <Link 
+          href="/settings"
+          className={cn(
+            "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group",
+            pathname === '/settings' ? "bg-zinc-900 text-white" : "text-zinc-500 hover:text-white"
+          )}
+        >
+          <Settings className={cn("h-5 w-5", pathname === '/settings' ? "text-red-500" : "group-hover:text-zinc-200")} />
+          <span className="font-semibold text-sm">Configuración</span>
+        </Link>
       </div>
     </div>
   );

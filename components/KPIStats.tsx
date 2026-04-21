@@ -28,12 +28,12 @@ function KpiCard({ title, value, unit, icon: Icon, color }: KpiCardProps) {
 }
 
 export function KPIStats({ 
-  wq, w, lq, utilization, totalProducts
+  wq, w, lq, utilization, totalProducts, totalRevenue
 }: { 
-  wq: number; w: number; lq: number; utilization: number; totalProducts: number 
+  wq: number; w: number; lq: number; utilization: number; totalProducts: number; totalRevenue: number 
 }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
       <KpiCard 
         title="Espera en Cola (Wq)" 
         value={wq.toFixed(2)} 
@@ -65,9 +65,16 @@ export function KPIStats({
       <KpiCard 
         title="Total Productos" 
         value={totalProducts} 
-        unit="unidades" 
+        unit="uds" 
         icon={Coffee} 
         color="bg-red-500" 
+      />
+      <KpiCard 
+        title="Ingresos Estimados" 
+        value={`Q${totalRevenue.toFixed(2)}`} 
+        unit="" 
+        icon={Activity} 
+        color="bg-emerald-500" 
       />
     </div>
   );

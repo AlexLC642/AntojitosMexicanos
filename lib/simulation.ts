@@ -2,12 +2,23 @@
 /**
  * Types for the simulation
  */
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+}
+
+/**
+ * Types for the simulation
+ */
 export interface SimulationParams {
   lambda: number; // Arrivals per hour
   mu: number;     // Service rate per server (clients per hour)
   s: number;      // Number of servers
   duration: number; // Simulation duration in minutes
   seed?: number;  // Seed for random number generator
+  products?: Product[]; // Available products
 }
 
 export interface ClientEvent {
@@ -17,7 +28,8 @@ export interface ClientEvent {
   endTime: number;     // in minutes
   waitTime: number;    // in minutes
   serviceDuration: number; // in minutes
-  productCount: number; // New field
+  productCount: number;
+  totalSale: number;   // New field
 }
 
 export interface SimulationResult {
@@ -26,7 +38,8 @@ export interface SimulationResult {
   lq: number; // Average number of clients in queue
   l: number;  // Average number of clients in system
   utilization: number; // System utilization (0-1)
-  totalProducts: number; // New field
+  totalProducts: number;
+  totalRevenue: number; // New field
   clients: ClientEvent[];
 }
 
@@ -102,9 +115,20 @@ export function runDES(params: SimulationParams): ClientEvent[] {
     // Service duration = -ln(U) / (mu/60)
     const serviceDuration = -Math.log(Math.random()) / (mu / 60);
 
-    // Generate product count (Poisson-like distribution around 2.25)
-    // For simplicity, using a random range between 1 and 4
+    // Generate product count (1 to 4)
     const productCount = Math.floor(Math.random() * 4) + 1;
+    
+    // Calculate total sale by randomly picking products if available
+    let totalSale = 0;
+    if (params.products && params.products.length > 0) {
+      for (let i = 0; i < productCount; i++) {
+        const randomIndex = Math.floor(Math.random() * params.products.length);
+        totalSale += params.products[randomIndex].price;
+      }
+    } else {
+      // Fallback base price if no products defined
+      totalSale = productCount * 20; 
+    }
 
     // Find the first available server
     let serverIndex = -1;
@@ -135,6 +159,7 @@ export function runDES(params: SimulationParams): ClientEvent[] {
       waitTime,
       serviceDuration,
       productCount,
+      totalSale,
     });
 
     serversFreeAt[serverIndex] = endTime;
@@ -150,10 +175,12 @@ export function simulate(params: SimulationParams): SimulationResult {
   const mmsStats = calculateMMS(params);
   const clients = runDES(params);
   const totalProducts = clients.reduce((sum, c) => sum + c.productCount, 0);
+  const totalRevenue = clients.reduce((sum, c) => sum + (c.totalSale || 0), 0);
   
   return {
     ...mmsStats,
     totalProducts,
+    totalRevenue,
     clients,
   };
 }

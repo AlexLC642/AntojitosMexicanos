@@ -21,6 +21,7 @@ export function ResultsTable({ clients }: { clients: ClientEvent[] }) {
               <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Fin</th>
               <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Espera</th>
               <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Productos</th>
+              <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Venta</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
@@ -37,6 +38,9 @@ export function ResultsTable({ clients }: { clients: ClientEvent[] }) {
                 </td>
                 <td className="px-6 py-4 text-zinc-400 text-sm">
                   {client.productCount} uds
+                </td>
+                <td className="px-6 py-4 text-green-500 text-sm font-bold">
+                  Q{(client.totalSale || 0).toFixed(2)}
                 </td>
               </tr>
             ))}

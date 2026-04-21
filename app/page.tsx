@@ -7,13 +7,15 @@ import { KPIStats } from '@/components/KPIStats';
 import { SimulationForm } from '@/components/SimulationForm';
 import { ResultsTable } from '@/components/ResultsTable';
 import { useSimulationStore } from '@/store/useSimulationStore';
-import { Info, AlertCircle } from 'lucide-react';
+import { Info, AlertCircle, RotateCcw } from 'lucide-react';
 
 export default function Dashboard() {
-  const { result, runSimulation, params } = useSimulationStore();
+  const { result, runSimulation, params, resetResults } = useSimulationStore();
 
   // Run initial simulation
   useEffect(() => {
+    useSimulationStore.getState().fetchProducts();
+    useSimulationStore.getState().fetchScenarios();
     runSimulation();
   }, [runSimulation]);
 
@@ -27,7 +29,16 @@ export default function Dashboard() {
             <h1 className="text-4xl font-black tracking-tight text-white mb-2 uppercase">Dashboard de Simulación</h1>
             <p className="text-zinc-500 font-medium">Análisis de flujo de clientes y optimización de servicio</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-4 items-center">
+            {result && (
+              <button 
+                onClick={resetResults}
+                className="bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-xl flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
+              >
+                <RotateCcw className="h-4 w-4" />
+                <span className="text-xs font-bold">Limpiar Tablero</span>
+              </button>
+            )}
             <div className="bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-xl flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
               <span className="text-xs font-bold text-zinc-400">Sistema Activo</span>
@@ -45,6 +56,7 @@ export default function Dashboard() {
                   lq={result.lq} 
                   utilization={result.utilization} 
                   totalProducts={result.totalProducts}
+                  totalRevenue={result.totalRevenue}
                 />
 
                 <div className="grid grid-cols-1 gap-8 mb-8">
