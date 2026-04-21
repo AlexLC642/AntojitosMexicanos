@@ -18,15 +18,15 @@ const products = [
 ];
 
 const scenarios = [
-  { name: 'Lunes (Mañana)', lambda: 25, mu: 12, s: 2, duration: 180 },
-  { name: 'Martes (Mediodía)', lambda: 38, mu: 14, s: 2, duration: 150 },
-  { name: 'Miércoles (Pico Mañana)', lambda: 53, mu: 15, s: 3, duration: 90 },
-  { name: 'Viernes (Pico Tarde)', lambda: 65, mu: 18, s: 4, duration: 120 },
-  { name: 'Sábado (Pico Noche)', lambda: 60, mu: 18, s: 4, duration: 120 },
-  { name: 'Escenario Base (Actual)', lambda: 45, mu: 15, s: 3, duration: 120 },
-  { name: 'Escenario Menor Personal', lambda: 45, mu: 15, s: 2, duration: 120 },
+  { name: 'Lunes (Mañana)', lambda: 20, mu: 12, s: 2, duration: 180 },
+  { name: 'Martes (Mediodía)', lambda: 30, mu: 15, s: 3, duration: 150 },
+  { name: 'Miércoles (Pico Mañana)', lambda: 45, mu: 15, s: 4, duration: 90 },
+  { name: 'Viernes (Pico Tarde)', lambda: 65, mu: 20, s: 4, duration: 120 },
+  { name: 'Sábado (Pico Noche)', lambda: 60, mu: 20, s: 4, duration: 120 },
+  { name: 'Escenario Base (Actual)', lambda: 40, mu: 15, s: 3, duration: 120 },
+  { name: 'Escenario Menor Personal', lambda: 25, mu: 15, s: 2, duration: 120 },
   { name: 'Escenario Mayor Personal', lambda: 45, mu: 15, s: 4, duration: 120 },
-  { name: 'Escenario Optimizado', lambda: 45, mu: 20, s: 3, duration: 120 },
+  { name: 'Escenario Optimizado', lambda: 50, mu: 20, s: 3, duration: 120 },
 ];
 
 async function main() {
