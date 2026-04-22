@@ -99,8 +99,6 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
     const scenario = get().scenarios.find(s => s.id === id);
     if (scenario && scenario.params) {
       set({ params: { ...scenario.params } });
-      // Ensure we run simulation after state update
-      setTimeout(() => get().runSimulation(), 0);
     }
   },
 
