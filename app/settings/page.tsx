@@ -192,7 +192,12 @@ export default function SettingsPage() {
                   <div className="flex justify-between items-start mb-4">
                      <div>
                         <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">{product.category}</span>
-                        <h4 className="text-white font-bold group-hover:text-red-500 transition-colors">{product.name}</h4>
+                        <input 
+                          type="text"
+                          value={product.name}
+                          onChange={(e) => updateProduct(product.id, { name: e.target.value })}
+                          className="bg-transparent border-none text-white font-bold focus:text-red-500 transition-colors outline-none w-full p-0"
+                        />
                      </div>
                      <button 
                        onClick={() => deleteProduct(product.id)}
