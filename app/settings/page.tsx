@@ -8,6 +8,7 @@ import { Settings, Utensils, Zap, Database, Edit3 } from 'lucide-react';
 
 export default function SettingsPage() {
   const { products, settings, updateProduct, updateSettings, fetchProducts } = useSimulationStore();
+  const theme = useTheme();
   const [isSaving, setIsSaving] = React.useState(false);
   const [saveSuccess, setSaveSuccess] = React.useState(false);
 
@@ -33,11 +34,12 @@ export default function SettingsPage() {
           <button 
             onClick={handleSave}
             disabled={isSaving}
-            className={`px-8 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all active:scale-95 ${
+            className={cn(
+              "px-8 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all active:scale-95",
               saveSuccess 
                 ? 'bg-green-600 text-white' 
-                : 'bg-red-600 hover:bg-red-700 text-white shadow-[0_0_20px_rgba(220,38,38,0.2)]'
-            }`}
+                : cn(theme.bgPrimary, theme.glowPrimary, "text-white hover:opacity-90")
+            )}
           >
             {isSaving ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -15,13 +15,16 @@ const navItems = [
   { icon: HelpCircle, label: 'Ayuda & Info', href: '/help' },
 ];
 
+import { useTheme } from '@/hooks/useTheme';
+
 export function Sidebar() {
   const pathname = usePathname();
+  const theme = useTheme();
 
   return (
     <div className="w-64 bg-zinc-950 border-r border-zinc-800 h-screen flex flex-col p-6 fixed left-0 top-0 z-50">
       <div className="flex items-center gap-3 mb-12">
-        <div className="bg-red-600 p-2 rounded-lg">
+        <div className={cn(theme.bgPrimary, "p-2 rounded-lg")}>
           <Coffee className="text-white h-6 w-6" />
         </div>
         <div>
@@ -45,11 +48,11 @@ export function Sidebar() {
               )}
             >
               {isActive && (
-                <div className="absolute left-0 w-1 h-6 bg-red-600 rounded-r-full" />
+                <div className={cn("absolute left-0 w-1 h-6 rounded-r-full", theme.bgPrimary)} />
               )}
               <item.icon className={cn(
                 "h-5 w-5 transition-colors",
-                isActive ? "text-red-500" : "group-hover:text-zinc-200"
+                isActive ? theme.textPrimary : "group-hover:text-zinc-200"
               )} />
               <span className="font-semibold text-sm tracking-wide">{item.label}</span>
             </Link>
@@ -65,7 +68,7 @@ export function Sidebar() {
             pathname === '/settings' ? "bg-zinc-900 text-white" : "text-zinc-500 hover:text-white"
           )}
         >
-          <Settings className={cn("h-5 w-5", pathname === '/settings' ? "text-red-500" : "group-hover:text-zinc-200")} />
+          <Settings className={cn("h-5 w-5", pathname === '/settings' ? theme.textPrimary : "group-hover:text-zinc-200")} />
           <span className="font-semibold text-sm">Configuración</span>
         </Link>
       </div>
