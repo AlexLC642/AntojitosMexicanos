@@ -33,6 +33,9 @@ interface SimulationState {
   updateSettings: (settings: Partial<Settings>) => void;
   fetchProducts: () => Promise<void>;
   fetchScenarios: () => Promise<void>;
+  addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  syncProducts: () => Promise<void>;
 }
 
 const defaultProducts: Product[] = [
@@ -130,6 +133,55 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
       }
     } catch (error) {
       console.error('Failed to fetch products:', error);
+    }
+  },
+
+  addProduct: async (newProduct) => {
+    try {
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProduct),
+      });
+      if (response.ok) {
+        const product = await response.json();
+        set((state) => ({ products: [...state.products, product] }));
+      }
+    } catch (error) {
+      console.error('Failed to add product:', error);
+    }
+  },
+
+  deleteProduct: async (id) => {
+    try {
+      const response = await fetch(`/api/products?id=${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        set((state) => ({ products: state.products.filter(p => p.id !== id) }));
+      }
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+    }
+  },
+
+  syncProducts: async () => {
+    const { products } = get();
+    try {
+      // For now, we only update existing ones that are in the database
+      // If they have a numeric ID from defaults, they aren't in the DB yet unless we seeded them.
+      // But the user wants to "save to database", so we should probably try to PUT all.
+      await Promise.all(products.map(async (product) => {
+        if (product.id.length > 5) { // Simple heuristic for cuid vs default '1', '2'
+          await fetch('/api/products', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(product),
+          });
+        }
+      }));
+    } catch (error) {
+      console.error('Failed to sync products:', error);
     }
   },
 

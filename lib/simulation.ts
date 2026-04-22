@@ -31,6 +31,7 @@ export interface ClientEvent {
   productCount: number;
   totalSale: number;   
   purchasedProducts: string[]; // List of product names
+  serverIndex: number; // New field
 }
 
 export interface SimulationResult {
@@ -179,6 +180,7 @@ export function runDES(params: SimulationParams): ClientEvent[] {
       productCount,
       totalSale,
       purchasedProducts,
+      serverIndex: serverIndex + 1, // 1-indexed for display
     });
 
     serversFreeAt[serverIndex] = endTime;

@@ -16,6 +16,7 @@ export function ResultsTable({ clients }: { clients: ClientEvent[] }) {
           <thead className="sticky top-0 bg-zinc-900 shadow-sm">
             <tr className="border-b border-zinc-800">
               <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">ID</th>
+              <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Servidor</th>
               <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Llegada</th>
               <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Inicio</th>
               <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Fin</th>
@@ -33,6 +34,11 @@ export function ResultsTable({ clients }: { clients: ClientEvent[] }) {
                       #{client.id.toString().padStart(3, '0')}
                     </span>
                   </div>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="text-[10px] font-black uppercase tracking-tighter bg-zinc-800 text-zinc-400 px-2 py-1 rounded-md border border-zinc-700">
+                    S-{client.serverIndex}
+                  </span>
                 </td>
                 <td className="px-6 py-4 text-zinc-400 text-sm font-mono">{client.arrivalTime.toFixed(2)}m</td>
                 <td className="px-6 py-4 text-zinc-400 text-sm font-mono">{client.startTime.toFixed(2)}m</td>
