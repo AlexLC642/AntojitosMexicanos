@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { Clock, Users, Activity, Percent, Coffee } from 'lucide-react';
+import { Clock, Users, Activity, Percent, Coffee, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 
 interface KpiCardProps {
   title: string;

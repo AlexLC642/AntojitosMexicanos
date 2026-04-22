@@ -1,7 +1,8 @@
-
 import React from 'react';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import { Play, RotateCcw, Calendar } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
+import { cn } from '@/lib/utils';
 
 export function SimulationForm() {
   const { params, setParams, runSimulation, scenarios, setScenario, isSimulating } = useSimulationStore();

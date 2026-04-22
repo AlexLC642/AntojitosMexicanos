@@ -5,6 +5,8 @@ import React from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import { Settings, Utensils, Zap, Database, Edit3 } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
+import { cn } from '@/lib/utils';
 
 export default function SettingsPage() {
   const { products, settings, updateProduct, updateSettings, fetchProducts } = useSimulationStore();
