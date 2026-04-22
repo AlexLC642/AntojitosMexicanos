@@ -16,6 +16,16 @@ export default function ComparisonPage() {
     compareScenarios();
   }, [compareScenarios]);
 
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await useSimulationStore.getState().fetchProducts();
+    await useSimulationStore.getState().fetchScenarios();
+    compareScenarios();
+    setTimeout(() => setIsRefreshing(false), 800);
+  };
+
   if (!mounted) {
     return (
       <div className="flex min-h-screen bg-zinc-950 text-zinc-50 font-sans">
@@ -41,11 +51,12 @@ export default function ComparisonPage() {
             <p className="text-zinc-500 font-medium">Análisis semanal y optimización operativa</p>
           </div>
           <button 
-            onClick={compareScenarios}
-            className="bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-zinc-800 transition-all text-white font-bold"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-zinc-800 transition-all text-white font-bold active:scale-95 disabled:opacity-50"
           >
-            <RefreshCcw className="h-4 w-4" />
-            Actualizar Datos
+            <RefreshCcw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Sincronizando...' : 'Actualizar Datos'}
           </button>
         </header>
 
