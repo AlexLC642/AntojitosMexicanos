@@ -27,7 +27,13 @@ export function ResultsTable({ clients }: { clients: ClientEvent[] }) {
           <tbody className="divide-y divide-zinc-800">
             {clients.slice(0, 100).map((client) => (
               <tr key={client.id} className="hover:bg-zinc-800/50 transition-colors">
-                <td className="px-6 py-4 text-white text-sm font-medium">#{client.id}</td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-white text-sm font-bold bg-zinc-800 px-2 py-1 rounded-lg border border-zinc-700">
+                      #{client.id.toString().padStart(3, '0')}
+                    </span>
+                  </div>
+                </td>
                 <td className="px-6 py-4 text-zinc-400 text-sm font-mono">{client.arrivalTime.toFixed(2)}m</td>
                 <td className="px-6 py-4 text-zinc-400 text-sm font-mono">{client.startTime.toFixed(2)}m</td>
                 <td className="px-6 py-4 text-zinc-300 text-sm font-mono font-bold">{client.endTime.toFixed(2)}m</td>
@@ -36,8 +42,22 @@ export function ResultsTable({ clients }: { clients: ClientEvent[] }) {
                     {client.waitTime.toFixed(2)}m
                   </span>
                 </td>
-                <td className="px-6 py-4 text-zinc-400 text-sm">
-                  {client.productCount} uds
+                <td className="px-6 py-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-white text-xs font-bold">{client.productCount} uds</span>
+                    <div className="flex flex-wrap gap-1 max-w-[200px]">
+                      {client.purchasedProducts.slice(0, 3).map((p, i) => (
+                        <span key={i} className="text-[9px] uppercase font-bold bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded-md border border-zinc-700">
+                          {p}
+                        </span>
+                      ))}
+                      {client.purchasedProducts.length > 3 && (
+                        <span className="text-[9px] font-bold bg-zinc-800 text-zinc-500 px-1.5 py-0.5 rounded-md border border-zinc-700">
+                          +{client.purchasedProducts.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </td>
                 <td className="px-6 py-4 text-green-500 text-sm font-bold">
                   Q{(client.totalSale || 0).toFixed(2)}

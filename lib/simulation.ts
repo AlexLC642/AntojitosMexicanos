@@ -29,7 +29,8 @@ export interface ClientEvent {
   waitTime: number;    // in minutes
   serviceDuration: number; // in minutes
   productCount: number;
-  totalSale: number;   // New field
+  totalSale: number;   
+  purchasedProducts: string[]; // List of product names
 }
 
 export interface SimulationResult {
@@ -135,13 +136,18 @@ export function runDES(params: SimulationParams): ClientEvent[] {
     
     // Calculate total sale by randomly picking products if available
     let totalSale = 0;
+    const purchasedProducts: string[] = [];
+
     if (params.products && params.products.length > 0) {
       for (let i = 0; i < productCount; i++) {
         const randomIndex = Math.floor(Math.random() * params.products.length);
-        totalSale += params.products[randomIndex].price;
+        const product = params.products[randomIndex];
+        totalSale += product.price;
+        purchasedProducts.push(product.name);
       }
     } else {
       totalSale = productCount * 20; 
+      for (let i = 0; i < productCount; i++) purchasedProducts.push('Producto Genérico');
     }
 
     // Find the first available server
@@ -172,6 +178,7 @@ export function runDES(params: SimulationParams): ClientEvent[] {
       serviceDuration,
       productCount,
       totalSale,
+      purchasedProducts,
     });
 
     serversFreeAt[serverIndex] = endTime;
