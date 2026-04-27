@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { useSimulationStore } from '@/store/useSimulationStore';
-import { Play, Save, Clock, Timer, Percent } from 'lucide-react';
+import { Play, Save, Clock, Timer, Percent, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { HourlyBreakdown } from './HourlyBreakdown';
