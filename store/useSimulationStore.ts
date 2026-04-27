@@ -19,6 +19,7 @@ interface SimulationState {
   params: SimulationParams;
   result: SimulationResult | null;
   scenarios: Scenario[];
+  isSimulating: boolean;
   tripleScenarios: { params: SimulationParams, result: SimulationResult | null }[];
   isTripleSimulating: boolean;
   products: Product[];
@@ -91,6 +92,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
     { params: { ...defaultParams }, result: null },
     { params: { ...defaultParams }, result: null },
   ],
+  isSimulating: false,
   isTripleSimulating: false,
   
   // Actions
