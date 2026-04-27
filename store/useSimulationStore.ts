@@ -92,7 +92,6 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
     { params: { ...defaultParams }, result: null },
     { params: { ...defaultParams }, result: null },
   ],
-  isSimulating: false,
   isTripleSimulating: false,
   
   // Actions
