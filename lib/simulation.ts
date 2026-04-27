@@ -22,6 +22,8 @@ export interface SimulationParams {
   day?: string;      // Optional day name
   timeLabel?: string; // Optional time range (e.g., "08:00 - 10:00")
   customLabel?: string; // Optional custom nickname
+  hour?: string;      // "01" through "12"
+  period?: string;    // "AM" or "PM"
 }
 
 export interface ClientEvent {

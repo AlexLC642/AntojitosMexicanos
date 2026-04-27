@@ -23,9 +23,10 @@ export function TripleComparison() {
 
   const handleSave = async (index: number) => {
     const slot = tripleScenarios[index];
+    const timeStr = `${slot.params.hour || '08'}:00 ${slot.params.period || 'AM'}`;
     const defaultName = [
       slot.params.day, 
-      slot.params.timeLabel, 
+      timeStr, 
       slot.params.customLabel
     ].filter(Boolean).join(' | ') || 'Escenario Nuevo';
 
@@ -38,6 +39,7 @@ export function TripleComparison() {
   };
 
   const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  const hours = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
 
   return (
     <div className="space-y-8">
@@ -84,25 +86,35 @@ export function TripleComparison() {
             {/* Clasificación de Escenario */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <label className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest ml-1">Día</label>
+                <label className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest ml-1">Día de la Semana</label>
                 <select 
                   value={slot.params.day || ''}
                   onChange={(e) => updateTripleScenario(idx, { day: e.target.value })}
                   className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-medium focus:ring-1 focus:ring-red-600 outline-none appearance-none"
                 >
-                  <option value="">Seleccionar...</option>
+                  <option value="">Día...</option>
                   {days.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest ml-1">Horario</label>
-                <input 
-                  type="text"
-                  placeholder="ej: 08:00 - 10:00"
-                  value={slot.params.timeLabel || ''}
-                  onChange={(e) => updateTripleScenario(idx, { timeLabel: e.target.value })}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-medium focus:ring-1 focus:ring-red-600 outline-none"
-                />
+                <label className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest ml-1">Horario (Inicio)</label>
+                <div className="flex gap-1">
+                  <select 
+                    value={slot.params.hour || '08'}
+                    onChange={(e) => updateTripleScenario(idx, { hour: e.target.value })}
+                    className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-2 py-2 text-xs text-white font-medium focus:ring-1 focus:ring-red-600 outline-none"
+                  >
+                    {hours.map(h => <option key={h} value={h}>{h}:00</option>)}
+                  </select>
+                  <select 
+                    value={slot.params.period || 'AM'}
+                    onChange={(e) => updateTripleScenario(idx, { period: e.target.value })}
+                    className="bg-zinc-950 border border-zinc-800 rounded-xl px-2 py-2 text-xs text-white font-medium focus:ring-1 focus:ring-red-600 outline-none"
+                  >
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
               </div>
             </div>
 
