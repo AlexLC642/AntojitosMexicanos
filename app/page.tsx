@@ -6,6 +6,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { KPIStats } from '@/components/KPIStats';
 import { SimulationForm } from '@/components/SimulationForm';
 import { ResultsTable } from '@/components/ResultsTable';
+import { HourlyBreakdown } from '@/components/HourlyBreakdown';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import { Info, AlertCircle, RotateCcw, Play } from 'lucide-react';
 
@@ -105,6 +106,10 @@ export default function Dashboard() {
                 </div>
 
                 <ResultsTable clients={result.clients} />
+
+                <div className="mt-12">
+                   <HourlyBreakdown clients={result.clients} duration={params.duration} />
+                </div>
               </>
             ) : (
               <div className="flex items-center justify-center h-64 bg-zinc-900/50 rounded-3xl border border-dashed border-zinc-800 group hover:border-zinc-700 transition-colors">

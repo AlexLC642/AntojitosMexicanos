@@ -6,6 +6,7 @@ import { useSimulationStore } from '@/store/useSimulationStore';
 import { Play, Save, Trash2, Users, Clock, Timer, Percent, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
+import { HourlyBreakdown } from './HourlyBreakdown';
 
 export function TripleComparison() {
   const { 
@@ -21,7 +22,14 @@ export function TripleComparison() {
   const [savingIndex, setSavingIndex] = useState<number | null>(null);
 
   const handleSave = async (index: number) => {
-    const name = prompt('Nombre para este escenario:');
+    const slot = tripleScenarios[index];
+    const defaultName = [
+      slot.params.day, 
+      slot.params.timeLabel, 
+      slot.params.customLabel
+    ].filter(Boolean).join(' | ') || 'Escenario Nuevo';
+
+    const name = prompt('Confirmar nombre para este escenario:', defaultName);
     if (name) {
       setSavingIndex(index);
       await saveTripleScenario(index, name);
@@ -29,19 +37,22 @@ export function TripleComparison() {
     }
   };
 
+  const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center bg-zinc-900/50 p-6 rounded-3xl border border-zinc-800">
         <div>
-          <h2 className="text-xl font-bold text-white uppercase tracking-tight">Analizador Triple</h2>
-          <p className="text-zinc-500 text-sm">Compara 3 configuraciones distintas del mismo día o turno.</p>
+          <h2 className="text-xl font-bold text-white uppercase tracking-tight">Analizador Triple Premium</h2>
+          <p className="text-zinc-500 text-sm">Compara escenarios por día, horario y etiquetas personalizadas.</p>
         </div>
         <button
           onClick={runTripleSimulation}
           disabled={isTripleSimulating}
           className={cn(
             "px-8 py-4 rounded-2xl flex items-center gap-3 text-white font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50",
-            theme.bgPrimary
+            theme.bgPrimary,
+            theme.glowPrimary
           )}
         >
           <Play className={cn("h-5 w-5 fill-current", isTripleSimulating && "animate-spin")} />
@@ -58,22 +69,82 @@ export function TripleComparison() {
               <span className="bg-zinc-800 text-zinc-400 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-zinc-700">
                 Espacio {idx + 1}
               </span>
-              <button 
-                onClick={() => handleSave(idx)}
-                disabled={savingIndex === idx}
-                className="text-zinc-500 hover:text-white transition-colors"
-              >
-                <Save className="h-4 w-4" />
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => handleSave(idx)}
+                  disabled={savingIndex === idx}
+                  className="bg-zinc-800 p-2 rounded-lg text-zinc-500 hover:text-white transition-colors border border-zinc-700"
+                  title="Guardar escenario"
+                >
+                  <Save className="h-4 w-4" />
+                </button>
+              </div>
             </div>
+
+            {/* Clasificación de Escenario */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <label className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest ml-1">Día</label>
+                <select 
+                  value={slot.params.day || ''}
+                  onChange={(e) => updateTripleScenario(idx, { day: e.target.value })}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-medium focus:ring-1 focus:ring-red-600 outline-none appearance-none"
+                >
+                  <option value="">Seleccionar...</option>
+                  {days.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest ml-1">Horario</label>
+                <input 
+                  type="text"
+                  placeholder="ej: 08:00 - 10:00"
+                  value={slot.params.timeLabel || ''}
+                  onChange={(e) => updateTripleScenario(idx, { timeLabel: e.target.value })}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-medium focus:ring-1 focus:ring-red-600 outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <label className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest ml-1">Etiqueta / Nota</label>
+                <input 
+                  type="text"
+                  placeholder="ej: Hora Pico"
+                  value={slot.params.customLabel || ''}
+                  onChange={(e) => updateTripleScenario(idx, { customLabel: e.target.value })}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-xs text-white font-medium focus:ring-1 focus:ring-red-600 outline-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest ml-1">Tiempo (min)</label>
+                <input 
+                  type="number"
+                  value={slot.params.duration}
+                  onChange={(e) => updateTripleScenario(idx, { duration: Number(e.target.value) })}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-xs text-white font-medium focus:ring-1 focus:ring-red-600 outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="h-px bg-zinc-800 my-1" />
 
             {/* Selector de Pre-sintonía */}
             <div className="space-y-2">
-              <label className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest ml-1">Cargar Escenario</label>
+              <div className="flex justify-between items-center px-1">
+                <label className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">Importar Base</label>
+                <span className="text-[9px] text-zinc-600 italic">Opcional</span>
+              </div>
               <select 
                 onChange={(e) => {
                   const s = scenarios.find(s => s.id === e.target.value);
-                  if (s) updateTripleScenario(idx, s.params);
+                  if (s) updateTripleScenario(idx, {
+                    ...s.params,
+                    day: s.params.day || slot.params.day,
+                    timeLabel: s.params.timeLabel || slot.params.timeLabel,
+                    customLabel: s.params.customLabel || slot.params.customLabel
+                  });
                 }}
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white font-medium focus:ring-2 focus:ring-red-600 outline-none appearance-none"
               >
@@ -116,7 +187,7 @@ export function TripleComparison() {
                     className={cn(
                       "flex-1 py-2 rounded-lg border text-sm font-bold transition-all",
                       slot.params.s === val 
-                        ? "bg-red-600 border-red-500 text-white" 
+                        ? "bg-red-600 border-red-500 text-white shadow-lg shadow-red-900/20" 
                         : "bg-zinc-800 border-zinc-700 text-zinc-500 hover:text-zinc-300"
                     )}
                   >
@@ -131,7 +202,7 @@ export function TripleComparison() {
               {slot.result ? (
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-zinc-800/50 p-4 rounded-2xl border border-zinc-800">
+                    <div className="bg-zinc-800/30 p-4 rounded-2xl border border-zinc-800 group-hover:border-zinc-700 transition-colors">
                       <div className="flex items-center gap-2 mb-1">
                         <Clock className="h-3 w-3 text-red-500" />
                         <span className="text-[10px] font-bold text-zinc-500 uppercase">Wq (Cola)</span>
@@ -143,7 +214,7 @@ export function TripleComparison() {
                         {slot.result.wq.toFixed(1)}m
                       </span>
                     </div>
-                    <div className="bg-zinc-800/50 p-4 rounded-2xl border border-zinc-800">
+                    <div className="bg-zinc-800/30 p-4 rounded-2xl border border-zinc-800 group-hover:border-zinc-700 transition-colors">
                       <div className="flex items-center gap-2 mb-1">
                         <Percent className="h-3 w-3 text-zinc-500" />
                         <span className="text-[10px] font-bold text-zinc-500 uppercase">Uso</span>
@@ -154,18 +225,31 @@ export function TripleComparison() {
                     </div>
                   </div>
                   
-                  <div className="bg-zinc-800/50 p-4 rounded-2xl border border-zinc-800">
+                  {/* Hourly Breakdown */}
+                  <div className="mt-4 border-t border-zinc-800 pt-4">
+                    <HourlyBreakdown 
+                      clients={slot.result.clients} 
+                      duration={slot.params.duration} 
+                    />
+                  </div>
+
+                  <div className="bg-zinc-800/30 p-4 rounded-2xl border border-zinc-800 group-hover:border-zinc-700 transition-colors">
                     <div className="flex justify-between items-center mb-2">
-                       <span className="text-[10px] font-bold text-zinc-500 uppercase">Balance de Carga</span>
-                       <span className="text-[10px] font-black text-white">
+                       <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">Balance de Carga Total</span>
+                       <span className={cn(
+                          "text-[9px] font-black px-2 py-0.5 rounded-full border",
+                          slot.result.utilization > 0.9 ? "text-red-500 border-red-900/50 bg-red-950/20" : 
+                          slot.result.utilization > 0.7 ? "text-orange-500 border-orange-900/50 bg-orange-950/20" : 
+                          "text-green-500 border-green-900/50 bg-green-950/20"
+                       )}>
                           {slot.result.utilization > 0.9 ? 'CRÍTICO' : slot.result.utilization > 0.7 ? 'ALTO' : 'ÓPTIMO'}
                        </span>
                     </div>
-                    <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden p-[1px]">
                       <div 
                         className={cn(
-                          "h-full transition-all duration-1000",
-                          slot.result.utilization > 0.9 ? "bg-red-600" : "bg-green-500"
+                          "h-full transition-all duration-1000 rounded-full",
+                          slot.result.utilization > 0.9 ? "bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.5)]" : "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"
                         )}
                         style={{ width: `${Math.min(100, slot.result.utilization * 100)}%` }}
                       />
@@ -173,7 +257,7 @@ export function TripleComparison() {
                   </div>
                 </div>
               ) : (
-                <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed border-zinc-800 rounded-3xl">
+                <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed border-zinc-800 rounded-[2rem]">
                   <Timer className="h-8 w-8 text-zinc-700 mb-2" />
                   <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest text-center px-4">
                     Esperando simulación

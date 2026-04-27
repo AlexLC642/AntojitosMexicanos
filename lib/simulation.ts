@@ -19,6 +19,9 @@ export interface SimulationParams {
   duration: number; // Simulation duration in minutes
   seed?: number;  // Seed for random number generator
   products?: Product[]; // Available products
+  day?: string;      // Optional day name
+  timeLabel?: string; // Optional time range (e.g., "08:00 - 10:00")
+  customLabel?: string; // Optional custom nickname
 }
 
 export interface ClientEvent {
