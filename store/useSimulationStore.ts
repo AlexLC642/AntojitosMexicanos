@@ -19,7 +19,8 @@ interface SimulationState {
   params: SimulationParams;
   result: SimulationResult | null;
   scenarios: Scenario[];
-  isSimulating: boolean;
+  tripleScenarios: { params: SimulationParams, result: SimulationResult | null }[];
+  isTripleSimulating: boolean;
   products: Product[];
   settings: Settings;
   
@@ -28,6 +29,9 @@ interface SimulationState {
   runSimulation: () => void;
   resetResults: () => void;
   setScenario: (id: string) => void;
+  updateTripleScenario: (index: number, params: Partial<SimulationParams>) => void;
+  runTripleSimulation: () => void;
+  saveTripleScenario: (index: number, name: string) => Promise<boolean>;
   compareScenarios: () => void;
   updateProduct: (id: string, updates: Partial<Product>) => void;
   updateSettings: (settings: Partial<Settings>) => void;
@@ -82,9 +86,58 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
     maxRows: 100,
   },
 
+  tripleScenarios: [
+    { params: { ...defaultParams }, result: null },
+    { params: { ...defaultParams }, result: null },
+    { params: { ...defaultParams }, result: null },
+  ],
+  isTripleSimulating: false,
+  
+  // Actions
   setParams: (newParams) => set((state) => ({ 
     params: { ...state.params, ...newParams } 
   })),
+
+  updateTripleScenario: (index: number, newParams: Partial<SimulationParams>) => set((state) => {
+    const updated = [...state.tripleScenarios];
+    updated[index] = { 
+      ...updated[index], 
+      params: { ...updated[index].params, ...newParams },
+      result: null // Reset result when params change
+    };
+    return { tripleScenarios: updated };
+  }),
+
+  runTripleSimulation: () => {
+    set({ isTripleSimulating: true });
+    setTimeout(() => {
+      const { tripleScenarios, products } = get();
+      const updated = tripleScenarios.map(slot => ({
+        ...slot,
+        result: simulate({ ...slot.params, products })
+      }));
+      set({ tripleScenarios: updated, isTripleSimulating: false });
+    }, 800);
+  },
+
+  saveTripleScenario: async (index: number, name: string) => {
+    const { tripleScenarios } = get();
+    const params = tripleScenarios[index].params;
+    try {
+      const response = await fetch('/api/scenarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, ...params }),
+      });
+      if (response.ok) {
+        await get().fetchScenarios();
+        return true;
+      }
+    } catch (error) {
+      console.error('Failed to save scenario:', error);
+    }
+    return false;
+  },
 
   runSimulation: () => {
     set({ isSimulating: true });
