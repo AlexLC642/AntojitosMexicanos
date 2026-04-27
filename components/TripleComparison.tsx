@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { useSimulationStore } from '@/store/useSimulationStore';
-import { Play, Save, Trash2, Users, Clock, Timer, Percent, ChevronDown } from 'lucide-react';
+import { Play, Save, Clock, Timer, Percent } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { HourlyBreakdown } from './HourlyBreakdown';
@@ -20,6 +20,25 @@ export function TripleComparison() {
   
   const theme = useTheme();
   const [savingIndex, setSavingIndex] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<number>(0);
+
+  const calculateEndTime = (startHour: string, period: string, durationMin: number) => {
+    let hour = parseInt(startHour);
+    if (period === 'PM' && hour !== 12) hour += 12;
+    if (period === 'AM' && hour === 12) hour = 0;
+    
+    const startMinutes = hour * 60;
+    const endMinutesTotal = startMinutes + durationMin;
+    
+    let endHour = Math.floor((endMinutesTotal / 60) % 24);
+    const endMin = Math.floor(endMinutesTotal % 60);
+    const endPeriod = endHour >= 12 ? 'PM' : 'AM';
+    
+    if (endHour > 12) endHour -= 12;
+    if (endHour === 0) endHour = 12;
+    
+    return `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')} ${endPeriod}`;
+  };
 
   const handleSave = async (index: number) => {
     const slot = tripleScenarios[index];
@@ -42,11 +61,11 @@ export function TripleComparison() {
   const hours = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-20">
       <div className="flex justify-between items-center bg-zinc-900/50 p-6 rounded-3xl border border-zinc-800">
         <div>
-          <h2 className="text-xl font-bold text-white uppercase tracking-tight">Analizador Triple Premium</h2>
-          <p className="text-zinc-500 text-sm">Compara escenarios por día, horario y etiquetas personalizadas.</p>
+          <h2 className="text-xl font-bold text-white uppercase tracking-tight">Comparador de Escenarios Premium</h2>
+          <p className="text-zinc-500 text-sm">Configura hasta 3 situaciones y analiza el detalle abajo.</p>
         </div>
         <button
           onClick={runTripleSimulation}
@@ -58,29 +77,29 @@ export function TripleComparison() {
           )}
         >
           <Play className={cn("h-5 w-5 fill-current", isTripleSimulating && "animate-spin")} />
-          {isTripleSimulating ? 'Simulando...' : 'Simular Todo'}
+          {isTripleSimulating ? 'Simular Todo' : 'Simular Todo'}
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {tripleScenarios.map((slot, idx) => (
           <div key={idx} className="bg-zinc-900 border border-zinc-800 rounded-[2.5rem] p-8 flex flex-col gap-6 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1 h-full bg-zinc-800 group-hover:bg-red-600 transition-colors" />
+            <div className={cn(
+               "absolute top-0 left-0 w-1 h-full transition-colors",
+               activeTab === idx ? "bg-red-600" : "bg-zinc-800 group-hover:bg-zinc-700"
+            )} />
             
             <div className="flex justify-between items-center">
               <span className="bg-zinc-800 text-zinc-400 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-zinc-700">
-                Espacio {idx + 1}
+                Escenario {idx + 1}
               </span>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => handleSave(idx)}
-                  disabled={savingIndex === idx}
-                  className="bg-zinc-800 p-2 rounded-lg text-zinc-500 hover:text-white transition-colors border border-zinc-700"
-                  title="Guardar escenario"
-                >
-                  <Save className="h-4 w-4" />
-                </button>
-              </div>
+              <button 
+                onClick={() => handleSave(idx)}
+                disabled={savingIndex === idx}
+                className="bg-zinc-800 p-2 rounded-lg text-zinc-500 hover:text-white transition-colors border border-zinc-700"
+              >
+                <Save className="h-4 w-4" />
+              </button>
             </div>
 
             {/* Clasificación de Escenario */}
@@ -140,145 +159,127 @@ export function TripleComparison() {
               </div>
             </div>
 
-            <div className="h-px bg-zinc-800 my-1" />
-
-            {/* Selector de Pre-sintonía */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center px-1">
-                <label className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">Importar Base</label>
-                <span className="text-[9px] text-zinc-600 italic">Opcional</span>
-              </div>
-              <select 
-                onChange={(e) => {
-                  const s = scenarios.find(s => s.id === e.target.value);
-                  if (s) updateTripleScenario(idx, {
-                    ...s.params,
-                    day: s.params.day || slot.params.day,
-                    timeLabel: s.params.timeLabel || slot.params.timeLabel,
-                    customLabel: s.params.customLabel || slot.params.customLabel
-                  });
-                }}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white font-medium focus:ring-2 focus:ring-red-600 outline-none appearance-none"
-              >
-                <option value="">Manual / Personalizado</option>
-                {scenarios.map(s => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
+            {/* Time Indicator */}
+            <div className="bg-zinc-950/50 p-3 rounded-2xl border border-zinc-800 flex justify-between items-center">
+               <div className="text-center flex-1">
+                  <p className="text-[9px] text-zinc-500 font-bold uppercase">Inicio</p>
+                  <p className="text-xs text-white font-black">{slot.params.hour || '08'}:00 {slot.params.period || 'AM'}</p>
+               </div>
+               <div className="h-4 w-px bg-zinc-800" />
+               <div className="text-center flex-1">
+                  <p className="text-[9px] text-zinc-500 font-bold uppercase">Fin Estimado</p>
+                  <p className="text-xs text-red-500 font-black">
+                     {calculateEndTime(slot.params.hour || '08', slot.params.period || 'AM', slot.params.duration)}
+                  </p>
+               </div>
             </div>
 
-            {/* Inputs Manuales */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-zinc-500 text-[10px] font-bold uppercase ml-1">λ (Llegada/h)</label>
+            <div className="h-px bg-zinc-800 my-1" />
+
+            {/* Inputs Manuales Rápidos */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1">
+                <label className="text-zinc-500 text-[9px] font-bold uppercase ml-1">λ</label>
                 <input 
                   type="number"
                   value={slot.params.lambda}
                   onChange={(e) => updateTripleScenario(idx, { lambda: Number(e.target.value) })}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-white font-bold outline-none focus:border-red-600 transition-colors"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white font-bold outline-none"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-zinc-500 text-[10px] font-bold uppercase ml-1">μ (Servicio/h)</label>
+              <div className="space-y-1">
+                <label className="text-zinc-500 text-[9px] font-bold uppercase ml-1">μ</label>
                 <input 
                   type="number"
                   value={slot.params.mu}
                   onChange={(e) => updateTripleScenario(idx, { mu: Number(e.target.value) })}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-white font-bold outline-none focus:border-red-600 transition-colors"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white font-bold outline-none"
                 />
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-zinc-500 text-[10px] font-bold uppercase ml-1">Personal (Servidores)</label>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map(val => (
-                  <button
-                    key={val}
-                    onClick={() => updateTripleScenario(idx, { s: val })}
-                    className={cn(
-                      "flex-1 py-2 rounded-lg border text-sm font-bold transition-all",
-                      slot.params.s === val 
-                        ? "bg-red-600 border-red-500 text-white shadow-lg shadow-red-900/20" 
-                        : "bg-zinc-800 border-zinc-700 text-zinc-500 hover:text-zinc-300"
-                    )}
-                  >
-                    {val}
-                  </button>
-                ))}
+              <div className="space-y-1">
+                <label className="text-zinc-500 text-[9px] font-bold uppercase ml-1">Pers.</label>
+                <select 
+                  value={slot.params.s}
+                  onChange={(e) => updateTripleScenario(idx, { s: Number(e.target.value) })}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white font-bold outline-none"
+                >
+                   {[1,2,3,4,5].map(v => <option key={v} value={v}>{v}</option>)}
+                </select>
               </div>
             </div>
 
-            {/* Resultados */}
-            <div className="mt-4 flex-1">
-              {slot.result ? (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-zinc-800/30 p-4 rounded-2xl border border-zinc-800 group-hover:border-zinc-700 transition-colors">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Clock className="h-3 w-3 text-red-500" />
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase">Wq (Cola)</span>
-                      </div>
-                      <span className={cn(
-                        "text-xl font-black",
-                        slot.result.wq > 10 ? "text-red-500" : "text-green-500"
-                      )}>
-                        {slot.result.wq.toFixed(1)}m
-                      </span>
-                    </div>
-                    <div className="bg-zinc-800/30 p-4 rounded-2xl border border-zinc-800 group-hover:border-zinc-700 transition-colors">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Percent className="h-3 w-3 text-zinc-500" />
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase">Uso</span>
-                      </div>
-                      <span className="text-xl font-black text-white">
-                        {(slot.result.utilization * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {/* Hourly Breakdown */}
-                  <div className="mt-4 border-t border-zinc-800 pt-4">
-                    <HourlyBreakdown 
-                      clients={slot.result.clients} 
-                      duration={slot.params.duration} 
-                    />
-                  </div>
-
-                  <div className="bg-zinc-800/30 p-4 rounded-2xl border border-zinc-800 group-hover:border-zinc-700 transition-colors">
-                    <div className="flex justify-between items-center mb-2">
-                       <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">Balance de Carga Total</span>
-                       <span className={cn(
-                          "text-[9px] font-black px-2 py-0.5 rounded-full border",
-                          slot.result.utilization > 0.9 ? "text-red-500 border-red-900/50 bg-red-950/20" : 
-                          slot.result.utilization > 0.7 ? "text-orange-500 border-orange-900/50 bg-orange-950/20" : 
-                          "text-green-500 border-green-900/50 bg-green-950/20"
-                       )}>
-                          {slot.result.utilization > 0.9 ? 'CRÍTICO' : slot.result.utilization > 0.7 ? 'ALTO' : 'ÓPTIMO'}
-                       </span>
-                    </div>
-                    <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden p-[1px]">
-                      <div 
-                        className={cn(
-                          "h-full transition-all duration-1000 rounded-full",
-                          slot.result.utilization > 0.9 ? "bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.5)]" : "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"
-                        )}
-                        style={{ width: `${Math.min(100, slot.result.utilization * 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed border-zinc-800 rounded-[2rem]">
-                  <Timer className="h-8 w-8 text-zinc-700 mb-2" />
-                  <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest text-center px-4">
-                    Esperando simulación
-                  </p>
-                </div>
-              )}
-            </div>
+            {/* Resumen de Resultados */}
+            {slot.result && (
+              <div className="pt-4 grid grid-cols-2 gap-3 border-t border-zinc-800">
+                 <div className="text-center">
+                    <p className="text-[9px] text-zinc-500 font-bold uppercase">Espera</p>
+                    <p className={cn("text-lg font-black", slot.result.wq > 10 ? "text-red-500" : "text-green-500")}>
+                       {slot.result.wq.toFixed(1)}m
+                    </p>
+                 </div>
+                 <div className="text-center border-l border-zinc-800">
+                    <p className="text-[9px] text-zinc-500 font-bold uppercase">Uso</p>
+                    <p className="text-lg font-black text-white">{(slot.result.utilization * 100).toFixed(0)}%</p>
+                 </div>
+              </div>
+            )}
           </div>
         ))}
+      </div>
+
+      {/* TABS PARA EL REPORTE DETALLADO */}
+      <div className="mt-12 space-y-6">
+         <div className="flex items-center gap-4">
+            <h3 className="text-xl font-black text-white uppercase tracking-widest">Inspección de Escenarios</h3>
+            <div className="flex-1 h-px bg-zinc-800" />
+         </div>
+
+         <div className="flex gap-4 p-1 bg-zinc-900 border border-zinc-800 rounded-2xl w-fit mx-auto shadow-2xl">
+            {tripleScenarios.map((slot, idx) => (
+               <button
+                  key={idx}
+                  onClick={() => setActiveTab(idx)}
+                  disabled={!slot.result}
+                  className={cn(
+                     "px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all relative overflow-hidden",
+                     activeTab === idx 
+                        ? "bg-red-600 text-white shadow-xl shadow-red-900/20" 
+                        : "text-zinc-500 hover:text-zinc-300 disabled:opacity-30"
+                  )}
+               >
+                  Escenario {idx + 1}
+                  {activeTab === idx && (
+                     <div className="absolute bottom-0 left-0 w-full h-1 bg-white/30" />
+                  )}
+               </button>
+            ))}
+         </div>
+
+         {/* REPORTE A ANCHO COMPLETO */}
+         <div className="bg-zinc-900/30 border border-zinc-800 rounded-[3rem] p-10 min-h-[400px]">
+            {tripleScenarios[activeTab]?.result ? (
+               <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
+                  <div className="mb-10 text-center">
+                     <h4 className="text-3xl font-black text-white uppercase mb-2">
+                        {tripleScenarios[activeTab].params.day || 'Escenario'} | {tripleScenarios[activeTab].params.hour}:00 {tripleScenarios[activeTab].params.period}
+                     </h4>
+                     <p className="text-zinc-500 font-bold tracking-[0.2em] uppercase text-xs">
+                        {tripleScenarios[activeTab].params.customLabel || 'Análisis de flujo detallado'}
+                     </p>
+                  </div>
+                  
+                  <HourlyBreakdown 
+                     clients={tripleScenarios[activeTab].result!.clients} 
+                     duration={tripleScenarios[activeTab].params.duration} 
+                  />
+               </div>
+            ) : (
+               <div className="h-64 flex flex-col items-center justify-center text-zinc-700">
+                  <Play className="h-12 w-12 mb-4 opacity-20" />
+                  <p className="font-bold uppercase tracking-widest text-sm">Ejecuta la simulación para ver el reporte aquí</p>
+               </div>
+            )}
+         </div>
       </div>
     </div>
   );
