@@ -68,6 +68,8 @@ export default function Dashboard() {
                   utilization={result.utilization} 
                   totalProducts={result.totalProducts}
                   totalRevenue={result.totalRevenue}
+                  totalCost={result.totalCost}
+                  totalProfit={result.totalProfit}
                 />
 
                 <div className="grid grid-cols-1 gap-8 mb-8">

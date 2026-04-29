@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { LayoutDashboard, Users, BarChart3, HelpCircle, Settings, Coffee } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, HelpCircle, Settings, Coffee, Banknote } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -11,7 +11,8 @@ const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
   { icon: Users, label: 'Comparativa', href: '/comparison' },
   { icon: BarChart3, label: 'Gráficas', href: '/charts' },
-  { icon: Coffee, label: 'Productos', href: '/productos' }, // New link
+  { icon: Coffee, label: 'Productos', href: '/productos' }, 
+  { icon: Banknote, label: 'Utilidades', href: '/utilidades' }, // Nuevo módulo
   { icon: HelpCircle, label: 'Ayuda & Info', href: '/help' },
 ];
 

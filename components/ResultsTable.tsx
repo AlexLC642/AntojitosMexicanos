@@ -20,9 +20,11 @@ export function ResultsTable({ clients }: { clients: ClientEvent[] }) {
               <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Llegada</th>
               <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Inicio</th>
               <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Fin</th>
-              <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Espera</th>
+              <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest text-center">Espera</th>
               <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Productos</th>
-              <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">Venta</th>
+              <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest text-right">Venta</th>
+              <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest text-right">Costo</th>
+              <th className="px-6 py-4 text-zinc-500 text-xs font-bold uppercase tracking-widest text-right">Ganancia</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
@@ -65,8 +67,14 @@ export function ResultsTable({ clients }: { clients: ClientEvent[] }) {
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 text-green-500 text-sm font-bold">
+                <td className="px-6 py-4 text-green-500 text-sm font-bold text-right">
                   Q{(client.totalSale || 0).toFixed(2)}
+                </td>
+                <td className="px-6 py-4 text-red-400 text-sm font-bold text-right">
+                  Q{(client.totalCost || 0).toFixed(2)}
+                </td>
+                <td className="px-6 py-4 text-blue-400 text-sm font-black text-right">
+                  Q{((client.totalSale || 0) - (client.totalCost || 0)).toFixed(2)}
                 </td>
               </tr>
             ))}

@@ -3,18 +3,18 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const products = [
-  { name: 'Hamburguesas', price: 25, category: 'Comida' },
-  { name: 'Burritos', price: 25, category: 'Comida' },
-  { name: 'Tacos (Orden)', price: 20, category: 'Comida' },
-  { name: 'Gringas', price: 20, category: 'Comida' },
-  { name: 'Poblanas', price: 20, category: 'Comida' },
-  { name: 'Hot dogs', price: 15, category: 'Comida' },
-  { name: 'Shucos', price: 15, category: 'Comida' },
-  { name: 'Coca-Cola', price: 10, category: 'Bebidas' },
-  { name: 'Fanta', price: 10, category: 'Bebidas' },
-  { name: 'Licuados', price: 12, category: 'Bebidas' },
-  { name: 'Té', price: 8, category: 'Bebidas' },
-  { name: 'Café', price: 8, category: 'Bebidas' },
+  { name: 'Hamburguesas', price: 25, cost: 7.00, category: 'Comida' },
+  { name: 'Burritos', price: 25, cost: 8.00, category: 'Comida' },
+  { name: 'Tacos (Orden)', price: 20, cost: 6.50, category: 'Comida' },
+  { name: 'Gringas', price: 20, cost: 7.50, category: 'Comida' },
+  { name: 'Poblanas', price: 20, cost: 7.00, category: 'Comida' },
+  { name: 'Hot dogs', price: 15, cost: 5.00, category: 'Comida' },
+  { name: 'Shucos', price: 15, cost: 6.50, category: 'Comida' },
+  { name: 'Coca-Cola', price: 10, cost: 6.50, category: 'Bebidas' },
+  { name: 'Fanta', price: 10, cost: 6.50, category: 'Bebidas' },
+  { name: 'Licuados', price: 12, cost: 5.00, category: 'Bebidas' },
+  { name: 'Té', price: 8, cost: 1.35, category: 'Bebidas' },
+  { name: 'Café', price: 8, cost: 2.00, category: 'Bebidas' },
 ];
 
 const scenarios = [

@@ -6,6 +6,7 @@ export interface Product {
   id: string;
   name: string;
   price: number;
+  cost: number;
   category: string;
 }
 
@@ -35,8 +36,9 @@ export interface ClientEvent {
   serviceDuration: number; // in minutes
   productCount: number;
   totalSale: number;   
-  purchasedProducts: string[]; // List of product names
-  serverIndex: number; // New field
+  totalCost: number;
+  purchasedProducts: string[]; 
+  serverIndex: number; 
 }
 
 export interface SimulationResult {
@@ -46,7 +48,9 @@ export interface SimulationResult {
   l: number;  // Average number of clients in system
   utilization: number; // System utilization (0-1)
   totalProducts: number;
-  totalRevenue: number; // New field
+  totalRevenue: number; 
+  totalCost: number;
+  totalProfit: number;
   clients: ClientEvent[];
 }
 
@@ -142,6 +146,7 @@ export function runDES(params: SimulationParams): ClientEvent[] {
     
     // Calculate total sale by randomly picking products if available
     let totalSale = 0;
+    let totalCost = 0;
     const purchasedProducts: string[] = [];
 
     if (params.products && params.products.length > 0) {
@@ -149,10 +154,12 @@ export function runDES(params: SimulationParams): ClientEvent[] {
         const randomIndex = Math.floor(Math.random() * params.products.length);
         const product = params.products[randomIndex];
         totalSale += product.price;
+        totalCost += product.cost || 0;
         purchasedProducts.push(product.name);
       }
     } else {
       totalSale = productCount * 20; 
+      totalCost = productCount * 8; // Default cost
       for (let i = 0; i < productCount; i++) purchasedProducts.push('Producto Genérico');
     }
 
@@ -184,6 +191,7 @@ export function runDES(params: SimulationParams): ClientEvent[] {
       serviceDuration,
       productCount,
       totalSale,
+      totalCost,
       purchasedProducts,
       serverIndex: serverIndex + 1, // 1-indexed for display
     });
@@ -202,11 +210,14 @@ export function simulate(params: SimulationParams): SimulationResult {
   const clients = runDES(params);
   const totalProducts = clients.reduce((sum, c) => sum + c.productCount, 0);
   const totalRevenue = clients.reduce((sum, c) => sum + (c.totalSale || 0), 0);
+  const totalCost = clients.reduce((sum, c) => sum + (c.totalCost || 0), 0);
   
   return {
     ...mmsStats,
     totalProducts,
     totalRevenue,
+    totalCost,
+    totalProfit: totalRevenue - totalCost,
     clients,
   };
 }

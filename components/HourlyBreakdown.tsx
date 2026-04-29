@@ -111,56 +111,71 @@ export function HourlyBreakdown({ clients, duration }: HourlyBreakdownProps) {
                   </div>
                 </div>
 
-                {/* Full FIFO Table */}
+                {/* Full FIFO Table with Scroll */}
                 <div className="bg-zinc-900 border border-zinc-800 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/50">
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto max-h-[400px] overflow-y-auto custom-scrollbar">
                       <table className="w-full text-left border-collapse">
-                        <thead>
+                        <thead className="sticky top-0 bg-zinc-900 shadow-sm z-10">
                             <tr className="bg-zinc-800/50 border-b border-zinc-800">
                               <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest">ID</th>
                               <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest">Servidor</th>
                               <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest">Llegada</th>
+                              <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest">Inicio</th>
                               <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest">Fin</th>
                               <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest text-center">Espera</th>
                               <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest">Productos</th>
                               <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest text-right">Venta</th>
+                              <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest text-right">Costo</th>
+                              <th className="px-6 py-5 text-zinc-500 text-[10px] font-black uppercase tracking-widest text-right">Ganancia</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-800/50">
                             {hourClients.map((c) => (
                               <tr key={c.id} className="hover:bg-zinc-800/30 transition-colors">
-                                  <td className="px-6 py-5 font-mono text-xs font-bold text-zinc-400">
-                                    #{String(c.id).padStart(3, '0')}
+                                  <td className="px-6 py-5">
+                                    <span className="text-white text-xs font-bold bg-zinc-800 px-2 py-1 rounded-lg border border-zinc-700">
+                                        #{String(c.id).padStart(3, '0')}
+                                    </span>
                                   </td>
                                   <td className="px-6 py-5">
-                                    <span className="bg-zinc-800 text-[10px] font-bold px-2 py-1 rounded border border-zinc-700 text-zinc-400">
+                                    <span className="bg-zinc-800 text-[10px] font-black uppercase tracking-tighter px-2 py-1 rounded-md border border-zinc-700 text-zinc-400">
                                         S-{c.serverIndex}
                                     </span>
                                   </td>
-                                  <td className="px-6 py-5 text-zinc-500 text-xs font-medium">{c.arrivalTime.toFixed(2)}m</td>
-                                  <td className="px-6 py-5 text-zinc-500 text-xs font-medium">{c.endTime.toFixed(2)}m</td>
+                                  <td className="px-6 py-5 text-zinc-500 text-xs font-mono">{c.arrivalTime.toFixed(2)}m</td>
+                                  <td className="px-6 py-5 text-zinc-500 text-xs font-mono">{c.startTime?.toFixed(2) || '0.00'}m</td>
+                                  <td className="px-6 py-5 text-zinc-500 text-xs font-mono">{c.endTime.toFixed(2)}m</td>
                                   <td className="px-6 py-5 text-center">
                                     <span className={cn(
-                                        "text-xs font-black px-3 py-1 rounded-full",
-                                        c.waitTime > 10 ? "bg-red-950/30 text-red-500 border border-red-900/50" : "bg-green-950/30 text-green-500 border border-green-900/50"
+                                        "text-xs font-bold px-2 py-1 rounded-md",
+                                        c.waitTime > 0 ? "bg-red-500/10 text-red-500" : "bg-green-500/10 text-green-500"
                                     )}>
                                         {c.waitTime.toFixed(2)}m
                                     </span>
                                   </td>
                                   <td className="px-6 py-5">
-                                    <div className="flex flex-wrap gap-1 max-w-[200px]">
-                                        {c.purchasedProducts.slice(0, 2).map((p, i) => (
-                                          <span key={i} className="text-[9px] bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded border border-zinc-700 uppercase font-bold">
-                                              {p}
-                                          </span>
-                                        ))}
-                                        {c.purchasedProducts.length > 2 && (
-                                          <span className="text-[9px] text-zinc-600 font-bold">+{c.purchasedProducts.length - 2}</span>
-                                        )}
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-white text-[10px] font-bold">{c.productCount} uds</span>
+                                        <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                            {c.purchasedProducts.slice(0, 2).map((p, i) => (
+                                              <span key={i} className="text-[9px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded border border-zinc-700 uppercase font-bold">
+                                                  {p}
+                                              </span>
+                                            ))}
+                                            {c.purchasedProducts.length > 2 && (
+                                              <span className="text-[9px] text-zinc-600 font-bold">+{c.purchasedProducts.length - 2}</span>
+                                            )}
+                                        </div>
                                     </div>
                                   </td>
                                   <td className="px-6 py-5 text-right">
                                     <span className="text-sm font-black text-green-500">Q{c.totalSale.toFixed(2)}</span>
+                                  </td>
+                                  <td className="px-6 py-5 text-right">
+                                    <span className="text-sm font-black text-red-400">Q{c.totalCost.toFixed(2)}</span>
+                                  </td>
+                                  <td className="px-6 py-5 text-right">
+                                    <span className="text-sm font-black text-blue-400">Q{(c.totalSale - c.totalCost).toFixed(2)}</span>
                                   </td>
                               </tr>
                             ))}

@@ -42,55 +42,69 @@ function KpiCard({ title, value, unit, icon: Icon, color }: KpiCardProps) {
 }
 
 export function KPIStats({ 
-  wq, w, lq, utilization, totalProducts, totalRevenue
+  wq, w, lq, utilization, totalProducts, totalRevenue, totalCost, totalProfit
 }: { 
-  wq: number; w: number; lq: number; utilization: number; totalProducts: number; totalRevenue: number 
+  wq: number; w: number; lq: number; utilization: number; totalProducts: number; totalRevenue: number; totalCost: number; totalProfit: number;
 }) {
   const theme = useTheme();
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
       <KpiCard 
-        title="Espera en Cola (Wq)" 
+        title="Espera (Wq)" 
         value={wq.toFixed(2)} 
         unit="min" 
         icon={Clock} 
         color={theme.isRed ? "bg-orange-500" : "bg-green-500"} 
       />
       <KpiCard 
-        title="Tiempo en Sistema (W)" 
+        title="Sistema (W)" 
         value={w.toFixed(2)} 
         unit="min" 
         icon={Activity} 
         color={theme.isRed ? "bg-blue-500" : "bg-emerald-500"} 
       />
       <KpiCard 
-        title="Clientes en Cola (Lq)" 
+        title="Cola (Lq)" 
         value={lq.toFixed(2)} 
-        unit="clientes" 
+        unit="cl" 
         icon={Users} 
         color={theme.isRed ? "bg-purple-500" : "bg-teal-500"} 
       />
       <KpiCard 
-        title="Utilización (ρ)" 
+        title="Uso (ρ)" 
         value={(utilization * 100).toFixed(1)} 
         unit="%" 
         icon={Percent} 
         color={theme.isRed ? "bg-green-500" : "bg-lime-500"} 
       />
       <KpiCard 
-        title="Total Productos" 
+        title="Productos" 
         value={totalProducts} 
         unit="uds" 
         icon={Coffee} 
         color={theme.isRed ? "bg-red-500" : "bg-green-500"} 
       />
       <KpiCard 
-        title="Ingresos Estimados" 
-        value={`Q${totalRevenue.toFixed(2)}`} 
+        title="Ingresos" 
+        value={`Q${totalRevenue.toFixed(0)}`} 
         unit="" 
         icon={TrendingUp} 
         color={theme.isRed ? "bg-emerald-500" : "bg-green-600"} 
+      />
+      <KpiCard 
+        title="Costo MP" 
+        value={`Q${totalCost.toFixed(0)}`} 
+        unit="" 
+        icon={TrendingUp} 
+        color="bg-red-500" 
+      />
+      <KpiCard 
+        title="Ganancia" 
+        value={`Q${totalProfit.toFixed(0)}`} 
+        unit="" 
+        icon={TrendingUp} 
+        color="bg-blue-500" 
       />
     </div>
   );
