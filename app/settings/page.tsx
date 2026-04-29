@@ -173,32 +173,31 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 </div>
-                  <div className="flex bg-zinc-900 p-1 rounded-xl border border-zinc-800">
-                    <button 
-                      type="button"
-                      onClick={() => setNewProductCategory('Comida')}
-                      className={cn(
-                        "px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all",
-                        newProductCategory === 'Comida' ? "bg-red-600 text-white shadow-lg shadow-red-600/20" : "text-zinc-500 hover:text-zinc-300"
-                      )}
-                    >
-                      Comida
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => setNewProductCategory('Bebidas')}
-                      className={cn(
-                        "px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all",
-                        newProductCategory === 'Bebidas' ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : "text-zinc-500 hover:text-zinc-300"
-                      )}
-                    >
-                      Bebida
-                    </button>
-                  </div>
+                <div className="flex bg-zinc-900 p-1 rounded-xl border border-zinc-800">
+                  <button 
+                    type="button"
+                    onClick={() => setNewProductCategory('Comida')}
+                    className={cn(
+                      "px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all",
+                      newProductCategory === 'Comida' ? "bg-red-600 text-white shadow-lg shadow-red-600/20" : "text-zinc-500 hover:text-zinc-300"
+                    )}
+                  >
+                    Comida
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setNewProductCategory('Bebidas')}
+                    className={cn(
+                      "px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all",
+                      newProductCategory === 'Bebidas' ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : "text-zinc-500 hover:text-zinc-300"
+                    )}
+                  >
+                    Bebida
+                  </button>
                 </div>
                 <button 
                   type="submit"
-                  disabled={!newProductName || !newProductPrice}
+                  disabled={!newProductName || !newProductPrice || !newProductCost}
                   className="w-full py-3 bg-white text-black rounded-xl font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all disabled:opacity-50 active:scale-[0.98]"
                 >
                   Agregar al Menú
