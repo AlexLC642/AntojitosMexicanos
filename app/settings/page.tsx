@@ -17,6 +17,7 @@ export default function SettingsPage() {
   // New product form state
   const [newProductName, setNewProductName] = React.useState('');
   const [newProductPrice, setNewProductPrice] = React.useState('');
+  const [newProductCost, setNewProductCost] = React.useState(''); // Nuevo
   const [newProductCategory, setNewProductCategory] = React.useState<'Comida' | 'Bebidas'>('Comida');
 
   React.useEffect(() => {
@@ -25,16 +26,18 @@ export default function SettingsPage() {
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newProductName || !newProductPrice) return;
+    if (!newProductName || !newProductPrice || !newProductCost) return;
     
     await addProduct({
       name: newProductName,
       price: Number(newProductPrice),
+      cost: Number(newProductCost), // Enviamos el costo
       category: newProductCategory
     });
     
     setNewProductName('');
     setNewProductPrice('');
+    setNewProductCost('');
   };
 
   const handleSave = async () => {
@@ -143,16 +146,33 @@ export default function SettingsPage() {
                   className="w-full bg-zinc-900 border border-zinc-800 text-white p-3 rounded-xl focus:ring-1 focus:ring-red-600 outline-none"
                 />
                 <div className="flex gap-4">
-                  <div className="flex-1 flex items-center gap-2">
-                    <div className="bg-zinc-900 px-3 py-2 rounded-lg text-zinc-500 text-sm font-mono border border-zinc-800">Q</div>
-                    <input 
-                      type="number"
-                      placeholder="Precio"
-                      value={newProductPrice}
-                      onChange={(e) => setNewProductPrice(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-800 text-white p-3 rounded-xl font-mono focus:ring-1 focus:ring-red-600 outline-none"
-                    />
+                  <div className="flex-1 flex flex-col gap-2">
+                    <label className="text-zinc-600 text-[9px] font-bold uppercase tracking-widest ml-1">Precio Venta</label>
+                    <div className="flex items-center gap-2">
+                      <div className="bg-zinc-900 px-3 py-2 rounded-lg text-zinc-500 text-sm font-mono border border-zinc-800">Q</div>
+                      <input 
+                        type="number"
+                        placeholder="0.00"
+                        value={newProductPrice}
+                        onChange={(e) => setNewProductPrice(e.target.value)}
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white p-3 rounded-xl font-mono focus:ring-1 focus:ring-red-600 outline-none"
+                      />
+                    </div>
                   </div>
+                  <div className="flex-1 flex flex-col gap-2">
+                    <label className="text-zinc-600 text-[9px] font-bold uppercase tracking-widest ml-1">Costo MP</label>
+                    <div className="flex items-center gap-2">
+                      <div className="bg-zinc-900 px-3 py-2 rounded-lg text-zinc-500 text-sm font-mono border border-zinc-800">Q</div>
+                      <input 
+                        type="number"
+                        placeholder="0.00"
+                        value={newProductCost}
+                        onChange={(e) => setNewProductCost(e.target.value)}
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white p-3 rounded-xl font-mono focus:ring-1 focus:ring-red-600 outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
                   <div className="flex bg-zinc-900 p-1 rounded-xl border border-zinc-800">
                     <button 
                       type="button"
@@ -206,15 +226,32 @@ export default function SettingsPage() {
                        <Trash2 className="h-4 w-4" />
                      </button>
                   </div>
-                  <div className="flex items-center gap-3">
-                     <div className="bg-zinc-900 px-3 py-2 rounded-lg text-zinc-500 text-sm font-mono border border-zinc-800">Q</div>
-                     <input 
-                        type="number"
-                        value={product.price}
-                        onChange={(e) => updateProduct(product.id, { price: Number(e.target.value) })}
-                        className="flex-1 bg-zinc-900 border border-zinc-800 text-white p-3 rounded-xl font-mono text-lg focus:ring-1 focus:ring-red-600 outline-none transition-all focus:bg-zinc-950"
-                     />
-                  </div>
+                   <div className="flex items-center gap-4">
+                      <div className="flex-1 flex flex-col gap-1">
+                         <span className="text-zinc-600 text-[8px] font-bold uppercase tracking-widest ml-1">Precio</span>
+                         <div className="flex items-center gap-2">
+                            <div className="bg-zinc-900 px-2 py-1.5 rounded-lg text-zinc-500 text-xs font-mono border border-zinc-800">Q</div>
+                            <input 
+                               type="number"
+                               value={product.price}
+                               onChange={(e) => updateProduct(product.id, { price: Number(e.target.value) })}
+                               className="flex-1 bg-zinc-900 border border-zinc-800 text-white p-2 rounded-xl font-mono text-sm focus:ring-1 focus:ring-red-600 outline-none transition-all"
+                            />
+                         </div>
+                      </div>
+                      <div className="flex-1 flex flex-col gap-1">
+                         <span className="text-zinc-600 text-[8px] font-bold uppercase tracking-widest ml-1">Costo</span>
+                         <div className="flex items-center gap-2">
+                            <div className="bg-zinc-900 px-2 py-1.5 rounded-lg text-zinc-500 text-xs font-mono border border-zinc-800">Q</div>
+                            <input 
+                               type="number"
+                               value={product.cost}
+                               onChange={(e) => updateProduct(product.id, { cost: Number(e.target.value) })}
+                               className="flex-1 bg-zinc-900 border border-zinc-800 text-white p-2 rounded-xl font-mono text-sm focus:ring-1 focus:ring-red-600 outline-none transition-all"
+                            />
+                         </div>
+                      </div>
+                   </div>
                 </div>
               ))}
             </div>
