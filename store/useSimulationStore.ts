@@ -44,18 +44,18 @@ interface SimulationState {
 }
 
 const defaultProducts: Product[] = [
-  { id: '1', name: 'Hamburguesas', price: 25, category: 'Comida' },
-  { id: '2', name: 'Burritos', price: 25, category: 'Comida' },
-  { id: '3', name: 'Tacos (Orden)', price: 20, category: 'Comida' },
-  { id: '4', name: 'Gringas', price: 20, category: 'Comida' },
-  { id: '5', name: 'Poblanas', price: 20, category: 'Comida' },
-  { id: '6', name: 'Hot dogs', price: 15, category: 'Comida' },
-  { id: '7', name: 'Shucos', price: 15, category: 'Comida' },
-  { id: '8', name: 'Coca-Cola', price: 10, category: 'Bebidas' },
-  { id: '9', name: 'Fanta', price: 10, category: 'Bebidas' },
-  { id: '10', name: 'Licuados', price: 12, category: 'Bebidas' },
-  { id: '11', name: 'Té', price: 8, category: 'Bebidas' },
-  { id: '12', name: 'Café', price: 8, category: 'Bebidas' },
+  { id: '1', name: 'Hamburguesas', price: 25, cost: 7.00, category: 'Comida' },
+  { id: '2', name: 'Burritos', price: 25, cost: 8.00, category: 'Comida' },
+  { id: '3', name: 'Tacos (Orden)', price: 20, cost: 6.50, category: 'Comida' },
+  { id: '4', name: 'Gringas', price: 20, cost: 7.50, category: 'Comida' },
+  { id: '5', name: 'Poblanas', price: 20, cost: 7.00, category: 'Comida' },
+  { id: '6', name: 'Hot dogs', price: 15, cost: 5.00, category: 'Comida' },
+  { id: '7', name: 'Shucos', price: 15, cost: 6.50, category: 'Comida' },
+  { id: '8', name: 'Coca-Cola', price: 10, cost: 6.50, category: 'Bebidas' },
+  { id: '9', name: 'Fanta', price: 10, cost: 6.50, category: 'Bebidas' },
+  { id: '10', name: 'Licuados', price: 12, cost: 5.00, category: 'Bebidas' },
+  { id: '11', name: 'Té', price: 8, cost: 1.35, category: 'Bebidas' },
+  { id: '12', name: 'Café', price: 8, cost: 2.00, category: 'Bebidas' },
 ];
 
 const defaultParams: SimulationParams = {
